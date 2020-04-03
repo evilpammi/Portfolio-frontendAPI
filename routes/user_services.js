@@ -3,12 +3,29 @@ const router = express.Router()
 const mysql = require('mysql');
 const db = require('../config/config.js') // เรียกใช้งานเชื่อมกับ MySQL
 
+// Response handling
+let response = {
+  status: 200,
+  isPass: false,
+  data: [],
+  message: "",
+  totalPage: 0
+};
 
-router.get('/getall',function(req,res){
-    let sql = ` SELECT * FROM user `
+
+router.get('/getall', function(req, res){
+    let sql = ` SELECT u.*,r.role_name FROM user u LEFT JOIN role r ON u.role_id = r.role_id`
     db.query(sql, function(err, result) {
-      if (err) throw err;
-      return res.json(result)
+      if(err){
+        response.message = err
+        response.isPass = false
+        res.json(response)
+      }else{
+        response.data = result
+        response.isPass = true
+        res.json(response)
+      }
+      return res
     });
 });
 
@@ -22,13 +39,21 @@ router.get('/get/:id',function(req,res){
 });
 
 router.post('/create',function(req,res){
-    let id = req.params.id
-    let sql = ` INSERT INTO user
-    VALUES (${value1}, ${value2}, ${value3}) `
-    db.query(sql, function(err, result) {
-      if (err) throw err;
-      return res.json(result)
-    });
+  console.log("req")
+  console.log(req.body)
+    let user_name = req.body['user_name'];
+    let user_password = req.body['user_password'];
+    let user_firstname = req.body['user_firstname'];
+    let user_lastname = req.body['user_lastname'];
+    let user_email = req.body['user_email'];
+    let role_id = req.body['role_id'];
+    let user_status = req.body['user_status'];
+    // let sql = ` INSERT INTO user (user_name, user_password, user_fname, user_lname, user_email, role_id, user_status)
+    // VALUES ('${user_name}', '${user_password}', '${user_firstname}', '${user_lastname}', '${user_email}', '${role_id}', '${user_status}') `
+    // db.query(sql, function(err, result) {
+    //   if (err) throw err;
+    //   return res.json(result)
+    // });
 });
  
 // router.route('/getall?')

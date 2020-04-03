@@ -16,12 +16,31 @@ app.listen(PORT, () => {
 app.get('/', (req, res) => res.send('Hello World'))
 app.all('/ping', (req, res) => res.send(new Date()))
 
-//ทำการ export app ที่เราสร้างขึ้น เพื่อให้สามารถนำไปใช้งานใน project อื่นๆ 
-//เปรียบเสมือนเป็น module ตัวนึง
-module.exports = app
+app.use(function(req, res, next) {
+
+    // Website you wish to allow to connect 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow 
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow 
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent 
+    // to the API (e.g. in case you use sessions) 
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware 
+    next();
+});
 
 // API routes
 const user_service = require('./routes/user_services');
 
 // API location
 app.use('/user', user_service);
+
+//ทำการ export app ที่เราสร้างขึ้น เพื่อให้สามารถนำไปใช้งานใน project อื่นๆ 
+//เปรียบเสมือนเป็น module ตัวนึง
+module.exports = app
