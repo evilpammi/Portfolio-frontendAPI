@@ -33,27 +33,125 @@ router.get('/get/:id',function(req,res){
     let id = req.params.id
     let sql = ` SELECT * FROM user WHERE user_id = ${id} `
     db.query(sql, function(err, result) {
-      if (err) throw err;
-      return res.json(result)
+      if(err){
+        response.message = err
+        response.isPass = false
+        res.json(response)
+      }else{
+        response.data = result
+        response.isPass = true
+        res.json(response)
+      }
+      return res
     });
 });
 
 router.post('/create',function(req,res){
-  console.log("req")
   console.log(req.body)
     let user_name = req.body['user_name'];
     let user_password = req.body['user_password'];
-    let user_firstname = req.body['user_firstname'];
-    let user_lastname = req.body['user_lastname'];
+    let user_fname = req.body['user_fname'];
+    let user_lname = req.body['user_lname'];
     let user_email = req.body['user_email'];
     let role_id = req.body['role_id'];
     let user_status = req.body['user_status'];
-    // let sql = ` INSERT INTO user (user_name, user_password, user_fname, user_lname, user_email, role_id, user_status)
-    // VALUES ('${user_name}', '${user_password}', '${user_firstname}', '${user_lastname}', '${user_email}', '${role_id}', '${user_status}') `
-    // db.query(sql, function(err, result) {
-    //   if (err) throw err;
-    //   return res.json(result)
-    // });
+    let sql_chk = ` SELECT COUNT(*) AS COUNT FROM user WHERE user_name = '${user_name}' OR user_email = '${user_email}' `;
+    let sql_add = ` INSERT INTO user (user_name, user_password, user_fname, user_lname, user_email, role_id, user_status)
+    VALUES ('${user_name}', '${user_password}', '${user_fname}', '${user_lname}', '${user_email}', '${role_id}', '${user_status}') `;
+    db.query(sql_chk, function(err, result) {
+      if(err){
+        response.message = err
+        response.isPass = false
+        res.json(response)
+      }else{
+        if(result[0].COUNT > 0){
+          response.data = result
+          response.isPass = false
+          response.message = "Username or Email is already exist."
+          res.json(response)
+        }else{
+          db.query(sql_add, function(err, result) {
+            if(err){
+              response.message = err
+              response.isPass = false
+              res.json(response)
+            }else{
+              response.data = result
+              response.message = "Save success."
+              response.isPass = true
+              res.json(response)
+            }
+          });
+        }
+      }
+      return res
+    });
+});
+
+router.post('/update',function(req,res){
+    let user_id = req.body['user_id'];
+    let user_name = req.body['user_name'];
+    let user_password = req.body['user_password'];
+    let user_fname = req.body['user_fname'];
+    let user_lname = req.body['user_lname'];
+    let user_email = req.body['user_email'];
+    let role_id = req.body['role_id'];
+    let user_status = req.body['user_status'];
+    let sql_chk = ` SELECT COUNT(*) AS COUNT FROM user WHERE user_id <> '${user_id}' AND (user_name = '${user_name}' OR user_email = '${user_email}') `;
+    let sql = ` UPDATE user SET user_name = '${user_name}'
+              , user_password = '${user_password}'
+              , user_fname = '${user_fname}'
+              , user_lname = '${user_lname}'
+              , user_email = '${user_email}'
+              , role_id = '${role_id}'
+              , user_status = '${user_status}'
+              WHERE user_id =  '${user_id}' `;
+    db.query(sql_chk, function(err, result) {
+      if(err){
+        response.message = err
+        response.isPass = false
+        res.json(response)
+      }else{
+        if(result[0].COUNT > 0){
+          response.data = result
+          response.isPass = false
+          response.message = "Username or Email is already exist."
+          res.json(response)
+        }else{
+          db.query(sql, function(err, result) {
+            if(err){
+              response.message = err
+              response.isPass = false
+              res.json(response)
+            }else{
+              response.data = result
+              response.message = "Save success."
+              response.isPass = true
+              res.json(response)
+            }
+          });
+        }
+      }
+      return res
+    });
+});
+
+router.post('/delete', function(req, res){
+  let user_id = req.body['user_id'];
+  let sql = ` DELETE FROM user WHERE user_id = '${user_id}' `
+  db.query(sql, function(err, result) {
+    if(err){
+      response.message = err
+      response.isPass = false
+      res.json(response)
+    }else{
+      response.data = result
+      response.message = "Delete success."
+      response.isPass = true
+      res.json(response)
+    }
+    return res
+  });
 });
  
 // router.route('/getall?')

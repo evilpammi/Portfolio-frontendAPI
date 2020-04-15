@@ -1,3 +1,4 @@
+const bodyParser = require('body-parser');
 //ทำการ import express เข้ามาใช้งาน โดยสร้างตัวแปร express ขึ้นมาเพื่อรับค่า
 const express = require('express')
 //ทำการสร้าง Instance ของ express และสร้างตัวแปร app ขึ้นมาเพื่อรับค่า
@@ -15,6 +16,10 @@ app.listen(PORT, () => {
 //จากนั้นให้กำหนด response แสดงคำว่า Hello World
 app.get('/', (req, res) => res.send('Hello World'))
 app.all('/ping', (req, res) => res.send(new Date()))
+
+// Parsers
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
 
@@ -37,9 +42,11 @@ app.use(function(req, res, next) {
 
 // API routes
 const user_service = require('./routes/user_services');
+const role_service = require('./routes/role_services');
 
 // API location
 app.use('/user', user_service);
+app.use('/role', role_service);
 
 //ทำการ export app ที่เราสร้างขึ้น เพื่อให้สามารถนำไปใช้งานใน project อื่นๆ 
 //เปรียบเสมือนเป็น module ตัวนึง
